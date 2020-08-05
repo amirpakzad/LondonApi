@@ -30,6 +30,7 @@ namespace LondonAPI
             services.AddControllers(options =>
             {
                 options.Filters.Add<JsonExceptionFilter>();
+                options.Filters.Add<RequireHttpsCloseAttribute>();
             });
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddSwaggerDocument();
@@ -40,6 +41,12 @@ namespace LondonAPI
                 options.AssumeDefaultVersionWhenUnspecified = true;
                 options.ReportApiVersions = true;
                 options.ApiVersionSelector = new CurrentImplementationApiVersionSelector(options);
+            });
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowMyApp",
+                    policy=>policy.
+                        AllowAnyOrigin());
             });
         }
 
@@ -61,15 +68,16 @@ namespace LondonAPI
 
                     };
                 });
-            app.UseHttpsRedirection();
             app.UseSwaggerUi3(options =>
             {
                 options.DocumentPath= "/swagger"+"/v1"+"/swagger.json";
             });
             app.UseRouting();
 
+            
+            //app.UseHttpsRedirection();
             app.UseAuthorization();
-
+            app.UseCors("AllowMyApp");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
