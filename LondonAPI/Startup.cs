@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using LondonAPI.Context;
 using LondonAPI.Filter;
+using LondonAPI.Infrastructure;
 using LondonAPI.Models;
+using LondonAPI.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -21,6 +24,7 @@ namespace LondonAPI
 {
     public class Startup
     {
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -47,6 +51,7 @@ namespace LondonAPI
                 options.ReportApiVersions = true;
                 options.ApiVersionSelector = new CurrentImplementationApiVersionSelector(options);
             });
+            services.AddScoped<IRoomService, DefaultRoomService>();
             //Use in-memory database for quick development and testing
             //TODO:Swap for a real database in production
             services.AddDbContext<HotelApiDbContext>(options =>
@@ -60,6 +65,7 @@ namespace LondonAPI
                     policy=>policy.
                         AllowAnyOrigin());
             });
+            services.AddAutoMapper(options => options.AddProfile<MappingProfile>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
